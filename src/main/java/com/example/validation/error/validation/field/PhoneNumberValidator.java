@@ -1,4 +1,4 @@
-package com.example.validation.error.validation;
+package com.example.validation.error.validation.field;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

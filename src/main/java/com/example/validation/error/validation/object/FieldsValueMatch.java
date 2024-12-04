@@ -1,4 +1,4 @@
-package com.example.validation.error.validation;
+package com.example.validation.error.validation.object;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

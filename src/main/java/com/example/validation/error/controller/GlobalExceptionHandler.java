@@ -14,10 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -70,12 +67,27 @@ public class GlobalExceptionHandler {
     private static Map<String, List<String>> getAllErrors(MethodArgumentNotValidException ex) {
         Map<String, List<String>> fieldErrors = getFieldsErrors(ex);
         Map<String, List<String>> globalErrors = getGlobalErrors(ex);
-        Map<String, List<String>> errors = HashMap.newHashMap((fieldErrors.size() + globalErrors.size()));
-        errors.putAll(fieldErrors);
-        errors.putAll(globalErrors);
+        Map<String, List<String>> errors = HashMap.newHashMap(fieldErrors.size() + globalErrors.size());
+        fieldErrors.forEach((key, value) -> mergeLists(key, value, errors));
+        globalErrors.forEach((key, value) -> mergeLists(key, value, errors));
+
         return errors;
     }
 
+    private static void mergeLists(String key, List<String> source, Map<String, List<String>> target) {
+        target.merge(key, source, (oldValue, newValue) -> {
+            List<String> combined = new ArrayList<>(oldValue);
+            combined.addAll(newValue);
+            return combined;
+        });
+    }
+
+    /**
+     * Метод работает с ошибками уровня полей. Объединяет в карту поля ошибок в список ошибок формата
+     * {@code имя поля: [название ошибки]}.
+     * @param ex Ошибка валидации.
+     * @return Карта, содержащая ключом имя поля, а значением список ошибок поля.
+     */
     private static Map<String, List<String>> getFieldsErrors(MethodArgumentNotValidException ex) {
         return ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.groupingBy(
@@ -84,6 +96,30 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    /**
+     * Метод работает с ошибками уровня класса. Преобразовывает имя объекта в конкретные поля ошибок, объединяя в карту
+     * формата {@code имя поля: [название ошибки]}.
+     * <p>
+     * Пример с ObjectError::getObjectName:
+     * <pre>{@code
+     *      {
+     *          "userDto": ["Пароли не совпадают", "Почты не совпадают"]
+     *      }
+     * }
+     * </pre>
+     * Пример текущей реализации:
+     * <pre>{@code
+     *      {
+     *          "password": ["Пароли не совпадают"],
+     *          "repeatedPassword: ["Пароли не совпадают"],
+     *          "email": ["Почты не совпадают"],
+     *          "repeatedEmail": ["Почты не совпадают"]
+     *      }
+     * }
+     * </pre>
+     * @param ex Ошибка валидации.
+     * @return Карта, содержащая ключом имя поля, а значением список ошибок поля.
+     */
     private static Map<String, List<String>> getGlobalErrors(MethodArgumentNotValidException ex) {
         return ex.getBindingResult().getGlobalErrors().stream()
                 .flatMap(objectError -> {

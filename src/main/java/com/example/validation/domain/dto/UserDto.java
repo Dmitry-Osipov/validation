@@ -1,8 +1,8 @@
 package com.example.validation.domain.dto;
 
-import com.example.validation.error.validation.FieldsValueMatch;
-import com.example.validation.error.validation.PhoneNumberConstraint;
-import com.example.validation.error.validation.TempServiceValidation;
+import com.example.validation.error.validation.object.FieldsValueMatch;
+import com.example.validation.error.validation.field.PhoneNumberConstraint;
+import com.example.validation.error.validation.field.TempServiceValidation;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -16,7 +16,12 @@ import lombok.Data;
                 field = "password",
                 fieldMatch = "repeatPassword",
                 message = "Пароли не совпадают"
-        )
+        ),
+        @FieldsValueMatch(
+                field = "email",
+                fieldMatch = "repeatEmail",
+                message = "Почты не совпадают"
+        ),
 })
 public class UserDto {
 
@@ -25,9 +30,16 @@ public class UserDto {
     @Size(max = 50, message = "Имя должно быть короче 50 символов")
     private String username;
 
+    @NotBlank(message = "Почта не может быть пустой")
+    private String email;
+
+    @NotNull(message = "Повтор почты должен быть заполнен")
+    private String repeatEmail;
+
+    @NotBlank(message = "Пароль не может быть пустым")
     private String password;
 
-    @NotNull
+    @NotNull(message = "Повтор пароля должен быть заполнен")
     private String repeatPassword;
 
     @PhoneNumberConstraint

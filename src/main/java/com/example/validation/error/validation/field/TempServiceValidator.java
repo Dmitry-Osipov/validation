@@ -1,4 +1,4 @@
-package com.example.validation.error.validation;
+package com.example.validation.error.validation.field;
 
 import com.example.validation.domain.service.TempService;
 import jakarta.validation.ConstraintValidator;
