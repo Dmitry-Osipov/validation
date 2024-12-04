@@ -3,6 +3,7 @@ package com.example.validation.error.dto;
 import lombok.*;
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,10 +13,10 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorDto {
-    private String error;
+    private ErrorType error;
     private String message;
     private Integer status;
     private String path;
     private ZonedDateTime timestamp;
-    private Map<String, List<String>> details;
+    private Map<String, List<String>> details = new HashMap<>();
 }
